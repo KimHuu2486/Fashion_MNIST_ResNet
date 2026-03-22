@@ -109,16 +109,19 @@ Biểu đồ accuracy được hiển thị so sánh:
 ```
 fashion_mnist_ResNet/
 │
-├── README.md                    # File này
-├── FashionMNIST.ipynb           # Notebook chứa code huấn luyện
+├── README.md                           # File này
+├── FashionMNIST.ipynb                  # Notebook chứa code huấn luyện
 │
-├── data/                        # Thư mục chứa dữ liệu
-│   ├── train-images-idx3-ubyte  # Hình ảnh huấn luyện
-│   ├── train-labels-idx1-ubyte  # Nhãn huấn luyện
-│   ├── t10k-images-idx3-ubyte   # Hình ảnh test
-│   └── t10k-labels-idx1-ubyte   # Nhãn test
+├── data/                               # Thư mục chứa dữ liệu
+│   ├── train-images-idx3-ubyte.gz      # Hình ảnh huấn luyện (nén)
+│   ├── train-labels-idx1-ubyte.gz      # Nhãn huấn luyện (nén)
+│   ├── t10k-images-idx3-ubyte.gz       # Hình ảnh test (nén)
+│   └── t10k-labels-idx1-ubyte.gz       # Nhãn test (nén)
 │
-└── best_fashion_resnet.keras    # Mô hình đã lưu
+└── models/                             # Thư mục lưu mô hình đã huấn luyện
+  └── exports/
+    ├── best_fashion_resnet.keras   # Mô hình ResNet-18 tốt nhất
+    └── norm_params.npy             # Tham số chuẩn hóa (mean, std)
 ```
 
 ## 📦 Yêu Cầu
