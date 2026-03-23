@@ -104,24 +104,45 @@ Biểu đồ accuracy được hiển thị so sánh:
 - Training accuracy qua các epochs
 - Validation accuracy qua các epochs
 
+## 🔄 Các Phiên Bản Thử Nghiệm (Experiments)
+
+Dự án hiện tại bao gồm nhiều phiên bản thử nghiệm để so sánh cấu hình:
+
+- **Ver 1 (`FashionMNIST_Ver1.ipynb` / `experiment_v1/`)**: Phiên bản huấn luyện cơ sở ban đầu.
+  - Tối ưu hóa: **Adam** (learning rate cố định lúc đầu) + **ReduceLROnPlateau** (giảm lr khi đạt đến ngưỡng plateau).
+  - Hàm loss: **Sparse Categorical Crossentropy** (dự đoán lớp nguyên gốc).
+  - Data Augmentation cơ bản (Lật, xoay, zoom).
+  - Số lượng huấn luyện: **50 Epochs**.
+
+- **Ver 2 (`FashionMNIST_Ver2.ipynb` / `experiment_v2/`)**: Phiên bản tinh chỉnh, áp dụng các kỹ thuật nâng cao.
+  - Data Augmentation: Bổ sung thêm **Random Translation** (Dịch chuyển ngang/dọc `0.1`).
+  - Hàm loss: Cải tiến sang **Categorical Crossentropy**, kết hợp One-hot encoding và kỹ thuật **Label Smoothing `0.1`** giúp giảm tính quá tin cậy (over-confidence), ngăn ngừa Overfitting tốt hơn.
+  - Tối ưu hóa: Sử dụng lịch trình giảm learning rate bằng **Cosine Decay**, giúp làm giảm độ lớn của lr một cách mượt mà và liên tục.
+  - Số lượng huấn luyện: Nâng lên **100 Epochs** để tìm điểm ưu việt cuối cùng thông qua Early Stopping.
+
 ## 📁 Cấu Trúc Dự Án
 
 ```
 fashion_mnist_ResNet/
 │
-├── README.md                           # File này
-├── FashionMNIST.ipynb                  # Notebook chứa code huấn luyện
+├── README.md                           # Tập tin tài liệu này
+├── FashionMNIST_Ver1.ipynb             # Notebook huấn luyện - Thử nghiệm bản 1
+├── FashionMNIST_Ver2.ipynb             # Notebook huấn luyện - Thử nghiệm bản 2
 │
-├── data/                               # Thư mục chứa dữ liệu
+├── data/                               # Thư mục gốc chứa dữ liệu
 │   ├── train-images-idx3-ubyte.gz      # Hình ảnh huấn luyện (nén)
 │   ├── train-labels-idx1-ubyte.gz      # Nhãn huấn luyện (nén)
 │   ├── t10k-images-idx3-ubyte.gz       # Hình ảnh test (nén)
 │   └── t10k-labels-idx1-ubyte.gz       # Nhãn test (nén)
 │
-└── models/                             # Thư mục lưu mô hình đã huấn luyện
+└── models/                             # Thư mục lưu trữ model đã huấn luyện
   └── exports/
-    ├── best_fashion_resnet.keras   # Mô hình ResNet-18 tốt nhất
-    └── norm_params.npy             # Tham số chuẩn hóa (mean, std)
+    ├── experiment_v1/                  # Kết quả xuất của Ver 1
+    │   ├── best_fashion_resnet.keras   # Mô hình xuất mảng tốt nhất
+    │   └── norm_params.npy             # Tham số chuẩn hóa đã tính toán
+    └── experiment_v2/                  # Kết quả xuất của Ver 2
+        ├── best_fashion_resnet.keras   # Mô hình xuất mảng tốt nhất
+        └── norm_params.npy             # Tham số chuẩn hóa đã tính toán
 ```
 
 ## 📦 Yêu Cầu
@@ -142,18 +163,20 @@ Download fashion MNIST data và đặt vào thư mục `data/`
 ### 2. Chạy Notebook
 
 ```bash
-jupyter notebook FashionMNIST.ipynb
+jupyter notebook FashionMNIST_Ver2.ipynb  # hoặc chạy FashionMNIST_Ver1.ipynb tương ứng
 ```
 
 ### 3. Dự Đoán với Mô Hình Đã Huấn Luyện
+
+Trong ví dụ dưới đây, ta sử dụng mô hình được trích xuất từ `experiment_v2` (bạn có thể đổi thành `experiment_v1` tùy ý):
 
 ```python
 import numpy as np
 import tensorflow as tf
 
-# Load mô hình và tham số chuẩn hóa
-model = tf.keras.models.load_model('best_fashion_resnet.keras')
-norm_params = np.load('norm_params.npy')
+# Load mô hình và tham số chuẩn hóa tương ứng với phiên bản thử nghiệm
+model = tf.keras.models.load_model('models/exports/experiment_v2/best_fashion_resnet.keras')
+norm_params = np.load('models/exports/experiment_v2/norm_params.npy')
 mean, std = norm_params[0], norm_params[1]
 
 # Chuẩn hóa hình ảnh
@@ -171,8 +194,9 @@ print(f"Dự đoán: {classes[class_idx]}")
 
 ## 💾 Các File Đầu Ra
 
-- **best_fashion_resnet.keras**: Mô hình ResNet-18 được huấn luyện tốt nhất
-- **norm_params.npy**: Tham số chuẩn hóa (mean, std) sử dụng trong inference
+Thay vì chứa chung, các file đều được chia vào thư mục riêng của mỗi phiên bản chạy (như `models/exports/experiment_v1/` và `models/exports/experiment_v2/`):
+- **best_fashion_resnet.keras**: Mô hình ResNet-18 với trọng số được lưu tại Epoch tốt nhất dựa trên accuracy validation.
+- **norm_params.npy**: Tham số chuẩn hóa (mean và std) sử dụng trong bước dự đoán (inference).
 
 ## 📈 Visualization
 
